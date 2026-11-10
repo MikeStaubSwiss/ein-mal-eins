@@ -3,717 +3,802 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="ZAP-App – Zoom and Print: Bild scannen, vergrössern und als PDF auf mehrere A4-Seiten verteilt ausdrucken.">
-<meta name="theme-color" content="#0e1513">
+<meta name="description" content="Ein mal Eins – Rechen-Lernapp mit drehbaren Walzen für Kinder.">
+<meta name="theme-color" content="#24493c">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon fill='%23ffd23f' points='50,4 61,37 97,37 68,58 79,92 50,71 21,92 32,58 3,37 39,37'/%3E%3C/svg%3E">
 <style>
-:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-*,*::before,*::after{box-sizing:border-box}
-body{margin:0;font:14px system-ui,sans-serif}
-img{max-width:100%}
-[hidden]{display:none!important}
+  /* Grundlage */
+  *,*::before,*::after{box-sizing:border-box}
+  :root{padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+  body{margin:0; font:14px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  img{max-width:100%}
+  [hidden]{display:none!important}
 </style>
-<title>ZAP-App</title>
+<title>Ein mal Eins</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,500..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Patrick+Hand&display=swap">
 <style>
-/* Layout: Bedienspalte links, grosse Poster-Vorschau rechts; auf dem Handy untereinander. Dunkel zuerst, wie die Spar-App. */
-:root {
-  --bg: #0e1513;
-  --surface: #16201d;
-  --surface-2: #1d2a26;
-  --line: #2a3a35;
-  --fg: #e7f0ec;
-  --muted: #8ea49c;
-  --accent: #3fd49a;
-  --accent-ink: #04271a;
-  --accent-soft: rgba(63, 212, 154, .14);
-  --warn: #f2b84b;
-  --paper: #ffffff;
-  --paper-shadow: rgba(0, 0, 0, .45);
-  --f-display: "Archivo", "Arial Narrow", system-ui, sans-serif;
-  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  color-scheme: dark;
+/* Layout: eine Schultafel, darauf eine Holz-Rechenmaschine mit drei Walzen, darunter Ergebnis-Tafel und Tastenfeld */
+:root{
+  --board:#24493c; --board-deep:#183429; --chalk:#f2efe2; --chalk-dim:#b9c7bd;
+  --wood:#b47a43; --wood-dark:#6f4521; --roller:#fbf5e4; --ink:#2b2620;
+  --star:#ffd23f; --ok:#9be3a0; --bad:#ffab94;
+  --f-num:"Baloo 2", "Arial Rounded MT Bold", system-ui, sans-serif;
+  --f-chalk:"Patrick Hand", "Comic Sans MS", "Chalkboard SE", cursive;
+  --H:64px;
+  color-scheme:dark;
 }
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --bg: #eef3f1; --surface: #ffffff; --surface-2: #f4f8f6; --line: #d5e0dc;
-    --fg: #12201b; --muted: #5a6e67; --accent: #0f9e6a; --accent-ink: #ffffff;
-    --accent-soft: rgba(15, 158, 106, .12); --warn: #b7791f;
-    --paper: #ffffff; --paper-shadow: rgba(20, 40, 33, .18);
-    color-scheme: light;
-  }
+html,body{height:100%}
+body{
+  background:
+    radial-gradient(120% 60% at 20% 0%, rgba(255,255,255,.06), transparent 60%),
+    radial-gradient(80% 50% at 90% 100%, rgba(255,255,255,.04), transparent 60%),
+    var(--board);
+  color:var(--chalk); font-family:var(--f-chalk);
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  -webkit-tap-highlight-color:transparent;
+  overflow-x:hidden;
 }
-:root[data-theme="light"] {
-  --bg: #eef3f1; --surface: #ffffff; --surface-2: #f4f8f6; --line: #d5e0dc;
-  --fg: #12201b; --muted: #5a6e67; --accent: #0f9e6a; --accent-ink: #ffffff;
-  --accent-soft: rgba(15, 158, 106, .12); --warn: #b7791f;
-  --paper: #ffffff; --paper-shadow: rgba(20, 40, 33, .18);
-  color-scheme: light;
+.app{max-width:440px; margin:0 auto; padding-block:18px 28px; display:flex; flex-direction:column; gap:18px}
+header{display:flex; align-items:baseline; justify-content:space-between; gap:12px}
+h1{font-family:var(--f-chalk); font-weight:400; font-size:2.4rem; margin:0; letter-spacing:.02em; text-wrap:balance;
+   text-shadow:0 0 1px rgba(242,239,226,.6)}
+.score{font-family:var(--f-num); font-weight:800; font-size:1.9rem; line-height:1; color:var(--star); display:flex; align-items:center; gap:8px; font-variant-numeric:tabular-nums}
+.score .s{width:40px; height:40px; filter:drop-shadow(0 2px 0 #a87a00); background:var(--star); clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
+
+.machine{
+  background:
+    repeating-linear-gradient(92deg, rgba(0,0,0,.06) 0 3px, transparent 3px 11px),
+    linear-gradient(180deg, #c48b52, var(--wood) 40%, #9c6534);
+  border-radius:22px; padding:14px;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.25), inset 0 -4px 0 var(--wood-dark), 0 10px 24px rgba(0,0,0,.35);
 }
-
-html, body { background: var(--bg); color: var(--fg); }
-body {
-  font-family: var(--f-body);
-  font-size: 15px;
-  line-height: 1.5;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 18px 40px;
+.reels{display:grid; grid-template-columns:1fr .78fr 1fr; gap:10px}
+.reel{
+  position:relative; height:calc(var(--H) * 3); border-radius:12px; overflow:hidden;
+  background:linear-gradient(180deg,#9c917a 0%, #e9e1cb 22%, var(--roller) 50%, #e9e1cb 78%, #9c917a 100%);
+  box-shadow:inset 0 0 0 2px var(--wood-dark), inset 0 6px 10px rgba(0,0,0,.25), inset 0 -6px 10px rgba(0,0,0,.25);
+  touch-action:none; cursor:grab; user-select:none; outline:none;
 }
-.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 20px; }
+.reel:active{cursor:grabbing}
+.reel:focus-visible{box-shadow:inset 0 0 0 2px var(--wood-dark), 0 0 0 3px var(--star)}
+.reel::after{content:""; position:absolute; left:0; right:0; top:var(--H); height:var(--H);
+  border-block:2px solid rgba(111,69,33,.55); background:rgba(255,210,63,.13); pointer-events:none}
+.cell{position:absolute; left:0; right:0; top:50%; height:var(--H); margin-top:calc(var(--H) / -2);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--f-num); font-weight:800; font-size:2.6rem; color:var(--ink); line-height:1;
+  font-variant-numeric:tabular-nums; will-change:transform}
+.reels.root{grid-template-columns:.62fr 1fr}
+.reels.root #r1{display:none}
+.reels:not(.chain) #r4, .reels:not(.chain) #r5{display:none}
+.reels.chain{grid-template-columns:1fr .66fr 1fr .66fr 1fr; gap:7px}
+.reels.chain .cell{font-size:2rem}
+.reels.chain .reel.op .cell{font-size:2.2rem}
+.reels.prec #r3, .reels.prec #r4, .reels.prec #r5,
+.reels.precL #r1, .reels.precL #r2, .reels.precL #r3{box-shadow:inset 0 0 0 2px var(--wood-dark), 0 0 0 3px var(--star), 0 0 14px rgba(255,210,63,.55)}
+.arc{display:none; grid-column:3 / 6; grid-row:2; height:26px; margin-top:-2px; position:relative; pointer-events:none}
+.arc::before{content:""; position:absolute; left:4%; right:4%; top:0; height:22px; box-sizing:border-box;
+  border:6px solid var(--star); border-top:0; border-radius:0 0 50% 50% / 0 0 100% 100%;
+  box-shadow:0 4px 8px -2px rgba(255,210,63,.55); opacity:0; transform:scaleX(.2); transform-origin:50% 0;
+  transition:opacity .25s ease-out, transform .45s cubic-bezier(.2,.9,.3,1.2)}
+.reels.helpon .arc{display:block}
+.reels.precL .arc{grid-column:1 / 4}
+.reels.prec .arc::before, .reels.precL .arc::before{opacity:1; transform:scaleX(1)}
+@media (prefers-reduced-motion: reduce){ .arc::before{transition:none} }
+.help{margin:-6px 0 -4px; padding:9px 12px; border-radius:12px; background:rgba(255,210,63,.12); border:2px dashed rgba(255,210,63,.6);
+  font-size:1.15rem; line-height:1.3; color:var(--chalk); text-align:center; text-wrap:balance}
+.help b{font-family:var(--f-num); font-weight:800; color:var(--star); white-space:nowrap}
+.help.off{visibility:hidden}
+.reel.op .cell{color:#a3401f; font-size:2.9rem}
+.levels{display:grid; grid-auto-flow:column; grid-auto-columns:1fr; gap:5px; padding:5px;
+  background:var(--board-deep); border-radius:16px; box-shadow:inset 0 2px 6px rgba(0,0,0,.35)}
+.lvl{border:0; border-radius:12px; padding:8px 2px 7px; min-width:0; cursor:pointer; background:transparent; color:var(--chalk-dim);
+  display:flex; flex-direction:column; align-items:center; gap:1px; transition:background .15s, color .15s}
+.lvl b{font-family:var(--f-chalk); font-weight:400; font-size:1.05rem; line-height:1.1}
+.lvl span{font-family:var(--f-num); font-weight:800; font-size:.9rem; letter-spacing:.04em; white-space:nowrap}
+.lvl[aria-pressed="true"]{background:var(--star); color:var(--ink); box-shadow:0 3px 0 #c79a12}
+.lvl:focus-visible{outline:3px solid var(--star); outline-offset:2px}
 
-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-h1 {
-  font-family: var(--f-display);
-  font-stretch: 112%;
-  font-weight: 800;
-  font-size: clamp(30px, 6vw, 44px);
-  line-height: 1;
-  letter-spacing: -.02em;
-  margin: 0;
+.result{display:grid; grid-template-columns:auto 1fr; align-items:center; gap:14px}
+.eq{font-family:var(--f-num); font-weight:800; font-size:3rem; line-height:1}
+.answer{
+  min-height:76px; border:3px dashed rgba(242,239,226,.55); border-radius:14px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--f-num); font-weight:800; font-size:2.8rem; font-variant-numeric:tabular-nums;
+  transition:border-color .2s, background .2s;
 }
-h1 span { color: var(--accent); }
-.tagline { margin: 8px 0 0; font-family: var(--f-display); font-weight: 700; font-size: 18px; color: var(--accent); letter-spacing: .01em; }
-.doc-btn { text-decoration: none; }
-.tagline + .lead { margin-top: 2px; }
-.lead { margin: 6px 0 0; color: var(--muted); max-width: 52ch; }
+.answer .ph{font-family:var(--f-chalk); font-weight:400; font-size:1.3rem; color:var(--chalk-dim)}
+.answer.right{border-style:solid; border-color:var(--ok); background:rgba(155,227,160,.12)}
+.answer{position:relative; overflow:hidden}
+.answer.wrong{border-color:var(--bad)}
+.ink{position:absolute; inset:0; display:flex; align-items:center; justify-content:center}
+.bnum{position:fixed; z-index:55; pointer-events:none; transform-origin:50% 55%;
+  font-family:var(--f-num); font-weight:800; font-size:2.8rem; line-height:1; color:var(--bad);
+  text-shadow:0 4px 0 rgba(0,0,0,.25); font-variant-numeric:tabular-nums; white-space:nowrap}
+.eraser{position:fixed; z-index:57; width:64px; height:34px; margin:-17px 0 0 -32px; border-radius:7px; pointer-events:none;
+  background:linear-gradient(180deg,#ffbccb 0%,#f68fa6 65%,#d8667f 100%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.55), inset 0 -3px 0 rgba(0,0,0,.12), 0 6px 9px rgba(0,0,0,.35)}
+.eraser::after{content:""; position:absolute; top:-1px; bottom:-1px; right:6px; width:26px; border-radius:3px;
+  background:linear-gradient(180deg,#f4efe1,#d9d1bd); box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.12)}
+.crumb{position:fixed; z-index:56; width:6px; height:4px; border-radius:2px; pointer-events:none; background:#eb93a8}
+.msg{min-height:1.6em; text-align:center; font-size:1.35rem; margin-top:-6px}
+.msg.right{color:var(--ok)} .msg.wrong{color:var(--bad)} .msg.info{color:var(--star)}
 
-.layout { display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); }
-@media (min-width: 900px) { .layout { grid-template-columns: 360px minmax(0, 1fr); align-items: start; } .controls { position: sticky; top: 16px; } }
-
-.controls { display: grid; gap: 14px; min-width: 0; }
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 14px; min-width: 0; }
-.panel h2 {
-  margin: 0; display: flex; align-items: center; gap: 10px;
-  font-family: var(--f-display); font-stretch: 100%; font-weight: 700; font-size: 17px; text-wrap: balance;
+.pad{display:grid; grid-template-columns:repeat(4,1fr); gap:9px}
+.key{
+  font-family:var(--f-num); font-weight:800; font-size:1.7rem; color:var(--ink);
+  background:var(--roller); border:0; border-radius:14px; height:58px; cursor:pointer;
+  box-shadow:0 4px 0 #b9ad8e; transition:transform .06s, box-shadow .06s;
 }
-.step {
-  width: 24px; height: 24px; border-radius: 50%; display: inline-grid; place-items: center;
-  background: var(--accent-soft); color: var(--accent); font: 600 12px var(--f-mono);
+.key:active{transform:translateY(3px); box-shadow:0 1px 0 #b9ad8e}
+.key:focus-visible{outline:3px solid var(--star); outline-offset:2px}
+.key.fn{background:#d9cfb4; font-size:1.4rem}
+.key.go{grid-column:4; grid-row:3 / span 2; height:auto; background:var(--star); box-shadow:0 4px 0 #c79a12; font-size:1.35rem}
+.key.zero{grid-column:1 / span 3}
+.key[disabled]{opacity:.45; cursor:not-allowed}
+
+.spin{
+  display:flex; align-items:center; justify-content:center; gap:10px; width:100%;
+  font-family:var(--f-num); font-weight:800; font-size:1.45rem; color:#fff;
+  background:linear-gradient(180deg,#ef6a4c,#d4462b); border:0; border-radius:16px;
+  padding:14px 18px; cursor:pointer; margin-top:-4px;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.3), 0 6px 0 #8f2a16, 0 10px 18px rgba(0,0,0,.3);
+  text-shadow:0 2px 0 rgba(0,0,0,.2); transition:transform .07s, box-shadow .07s;
 }
-.label { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+.spin span{display:inline-block; font-size:1.7rem; line-height:1}
+@media (prefers-reduced-motion: reduce){ .spin[disabled] span{animation:none} }
+.spin:active{transform:translateY(5px); box-shadow:inset 0 2px 0 rgba(255,255,255,.3), 0 1px 0 #8f2a16, 0 3px 8px rgba(0,0,0,.3)}
+.spin[disabled]{filter:saturate(.5) brightness(.9); cursor:wait}
+.spin[disabled] span{animation:turn .8s linear infinite}
+@keyframes turn{to{transform:rotate(360deg)}}
+.spin:focus-visible{outline:3px solid var(--star); outline-offset:2px}
+.hint{font-size:1.05rem; color:var(--chalk-dim); text-align:center; margin:0}
 
-.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
-.btn {
-  appearance: none; border: 1px solid var(--line); background: var(--surface-2); color: var(--fg);
-  font: 500 14px var(--f-body); padding: 10px 14px; border-radius: 10px; cursor: pointer;
-  display: inline-flex; align-items: center; gap: 8px; min-height: 42px;
-}
-.btn:hover { border-color: var(--accent); }
-.btn:focus-visible, .chip:focus-visible, .seg button:focus-visible, .stepper button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
-.btn.primary:hover { filter: brightness(1.08); }
-.btn.big { width: 100%; justify-content: center; min-height: 50px; font-size: 16px; }
-.btn[disabled] { opacity: .55; cursor: progress; }
-.btn svg { width: 18px; height: 18px; flex: none; }
-.file-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.star{position:fixed; width:26px; height:26px; margin:-13px 0 0 -13px; pointer-events:none; z-index:50;
+  background:var(--star); clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
+.bravo{position:fixed; left:50%; top:38%; z-index:60; pointer-events:none;
+  font-family:var(--f-num); font-weight:800; font-size:3.4rem; color:var(--star);
+  text-shadow:0 3px 0 #a87a00, 0 8px 18px rgba(0,0,0,.4); transform:translate(-50%,-50%)}
+@media (prefers-reduced-motion: reduce){ .answer.wrong{animation:none} }
 
-.img-info { display: flex; gap: 12px; align-items: center; min-width: 0; }
-.img-info canvas { width: 56px; height: 56px; border-radius: 8px; background: var(--surface-2); flex: none; object-fit: contain; }
-.img-info div { min-width: 0; }
-.img-info strong { display: block; font-weight: 600; overflow-wrap: anywhere; }
-.img-info small { color: var(--muted); font-family: var(--f-mono); font-size: 12px; }
-.tag { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); font-weight: 600; letter-spacing: .04em; margin-left: 4px; }
+.copy{margin-top:6px; text-align:center; font-size:1rem; color:var(--chalk-dim); opacity:.8}
 
-.chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip {
-  appearance: none; border: 1px solid var(--line); background: transparent; color: var(--fg);
-  font: 500 14px var(--f-mono); min-width: 44px; height: 40px; border-radius: 10px; cursor: pointer;
-}
-.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-
-.grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.field { display: grid; gap: 6px; min-width: 0; }
-.stepper { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface-2); }
-.stepper button { appearance: none; border: 0; background: transparent; color: var(--fg); width: 40px; height: 40px; font-size: 20px; cursor: pointer; }
-.stepper button:hover { color: var(--accent); }
-.stepper output { flex: 1; text-align: center; font: 500 16px var(--f-mono); font-variant-numeric: tabular-nums; }
-
-.seg { display: flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface-2); }
-.seg button { flex: 1; appearance: none; border: 0; background: transparent; color: var(--muted); font: 500 13px var(--f-body); padding: 9px 6px; cursor: pointer; min-height: 40px; }
-.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
-
-.range { display: grid; gap: 4px; }
-.range-head { display: flex; justify-content: space-between; align-items: baseline; }
-.range-head output { font: 500 13px var(--f-mono); color: var(--fg); }
-input[type="range"] { width: 100%; accent-color: var(--accent); }
-.pct-num { font: 500 14px var(--f-mono); white-space: nowrap; }
-.pct-num input { width: 72px; font: 500 15px var(--f-mono); text-align: right; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-2); color: var(--fg); }
-.stepper.locked { opacity: .5; }
-.stepper.locked button { cursor: not-allowed; }
-.check { display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; }
-.check input { width: 18px; height: 18px; accent-color: var(--accent); }
-
-/* Vorschau */
-.stage { display: grid; gap: 16px; min-width: 0; }
-.poster-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 14px; min-width: 0; }
-.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
-.stat { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; min-width: 0; }
-.stat .v { font: 600 20px var(--f-display); font-stretch: 95%; font-variant-numeric: tabular-nums; line-height: 1.15; }
-.stat .v small { font: 400 12px var(--f-mono); color: var(--muted); }
-.stat.warn .v { color: var(--warn); }
-.poster-box { display: grid; place-items: center; background: var(--surface-2); border-radius: 10px; padding: 18px; min-height: 260px; overflow: hidden; }
-#posterCanvas { max-width: 100%; height: auto; display: block; box-shadow: 0 10px 30px var(--paper-shadow); border-radius: 2px; }
-.hint { color: var(--muted); font-size: 13px; margin: 0; }
-.hint.warn { color: var(--warn); }
-
-.pages-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.pages-head h2 { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: 17px; display: flex; align-items: center; gap: 10px; }
-.pages { display: grid; gap: 12px; grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr)); }
-.sheet { display: grid; gap: 6px; min-width: 0; }
-.sheet canvas { width: 100%; height: auto; display: block; background: var(--paper); box-shadow: 0 4px 14px var(--paper-shadow); border-radius: 2px; }
-.sheet span { font: 500 12px var(--f-mono); color: var(--muted); text-align: center; }
-
-.export { display: grid; gap: 10px; }
-.toast { font-size: 14px; padding: 10px 12px; border-radius: 10px; background: var(--accent-soft); color: var(--fg); }
-.toast.err { background: rgba(242, 184, 75, .15); }
-.progress { height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
-.progress i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .15s; }
-
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+/* Lehrperson-Einstellungen */
+[hidden]{display:none!important}
+.tools{display:flex; align-items:center; gap:14px}
+.gear{width:40px; height:40px; padding:0; border-radius:50%; border:2px solid rgba(242,239,226,.3);
+  background:transparent; color:var(--chalk-dim); cursor:pointer; display:grid; place-items:center}
+.gear svg{width:22px; height:22px}
+.gear:hover{color:var(--chalk); border-color:rgba(242,239,226,.6)}
+.gear:focus-visible{outline:3px solid var(--star); outline-offset:2px}
+.reels.nodrag .reel{touch-action:auto; cursor:default}
+.ov{position:fixed; inset:0; z-index:80; background:rgba(8,20,15,.75); display:flex; align-items:flex-start; justify-content:center; overflow-y:auto;
+  padding:max(20px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px))}
+.sheet{width:100%; max-width:420px; background:var(--board-deep); border:2px solid rgba(242,239,226,.16); border-radius:20px;
+  padding:16px 18px 18px; box-shadow:0 20px 40px rgba(0,0,0,.5); display:flex; flex-direction:column; gap:12px}
+.sh-head{display:flex; justify-content:space-between; align-items:center; gap:10px}
+.sheet h2{margin:0; font-family:var(--f-chalk); font-weight:400; font-size:1.8rem}
+.sheet form{display:flex; flex-direction:column; gap:14px; margin:0}
+.sheet fieldset{border:1px solid rgba(242,239,226,.2); border-radius:14px; margin:0; padding:8px 12px 12px; display:flex; flex-direction:column; gap:10px; min-width:0}
+.sheet legend{font-family:var(--f-chalk); font-size:1.2rem; padding:0 6px; color:var(--star)}
+.sheet label{font-size:1.15rem}
+.sheet input[type=password], .sheet input[type=number]{font:600 1.1rem var(--f-num); background:var(--roller); color:var(--ink);
+  border:0; border-radius:10px; padding:8px 10px; min-width:0}
+.sheet input[type=checkbox]{width:22px; height:22px; margin:0; accent-color:var(--star)}
+.sheet input:focus-visible, .sheet button:focus-visible{outline:3px solid var(--star); outline-offset:2px}
+.lrow{display:grid; grid-template-columns:22px 1fr 72px; align-items:center; gap:4px 10px}
+.lrow label{display:flex; flex-direction:column; line-height:1.1}
+.lrow label small{font-family:var(--f-num); font-weight:800; font-size:.85rem; color:var(--chalk-dim); letter-spacing:.04em}
+.lrow input[type=number]{width:72px; text-align:center}
+.colhead{display:grid; grid-template-columns:22px 1fr 72px; gap:10px; font-size:.95rem; color:var(--chalk-dim)}
+.colhead span:last-child{text-align:center; line-height:1.1}
+.tog{display:flex; align-items:center; gap:10px}
+.srow{display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:1.15rem}
+.pwrow{display:flex; flex-direction:column; gap:8px}
+.btn{font:800 1.05rem var(--f-num); border:0; border-radius:12px; padding:10px 16px; cursor:pointer; background:#d9cfb4; color:var(--ink)}
+.btn.primary{background:var(--star); box-shadow:0 3px 0 #c79a12}
+.btn.doc{display:flex; align-items:center; justify-content:center; gap:8px; text-decoration:none; background:transparent;
+  color:var(--chalk); border:2px solid rgba(242,239,226,.4)}
+.btn.doc svg{width:20px; height:20px}
+.btn.doc:hover{border-color:var(--chalk)}
+.x{background:transparent; border:0; color:var(--chalk); font-size:1.5rem; cursor:pointer; width:40px; height:40px; border-radius:50%}
+.actions{display:flex; justify-content:flex-end; gap:10px}
+.err{margin:0; color:var(--bad); font-size:1.1rem}
+.err:empty{display:none}
+.note{margin:0; color:var(--chalk-dim); font-size:1.02rem}
 </style>
-
 </head>
 <body>
-<div class="wrap">
+<div class="app">
   <header>
-    <div>
-      <h1>ZAP<span>-</span>App</h1>
-      <p class="tagline">Zoom and Print</p>
-      <p class="lead">Bild scannen, vergrössern und auf mehrere A4-Seiten verteilen. Ergebnis ist ein PDF zum Ausdrucken und Zusammenkleben.</p>
+    <h1>Ein mal Eins</h1>
+    <div class="tools">
+      <div class="score" aria-label="Gesammelte Sterne"><span class="s"></span><span id="score">0</span></div>
+      <button class="gear" id="gear" aria-label="Einstellungen für die Lehrperson">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
     </div>
-    <a class="btn doc-btn" id="docBtn" href="ZAP-App_Benutzerdokumentation.pdf" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h4"/></svg>
-      Anleitung (PDF)
-    </a>
   </header>
+  <nav class="levels" id="levels" aria-label="Stufe wählen">
+    <button class="lvl" data-l="0" aria-pressed="true"><b>Entdecker</b><span>+ −</span></button>
+    <button class="lvl" data-l="1" aria-pressed="false"><b>Forscher</b><span>+ − ×</span></button>
+    <button class="lvl" data-l="2" aria-pressed="false"><b>Profi</b><span>+ − × :</span></button>
+    <button class="lvl" data-l="3" aria-pressed="false"><b>Professor</b><span id="lvlRoot">√ 2500</span></button>
+  </nav>
 
-  <div class="layout">
-    <aside class="controls">
-      <section class="panel" aria-labelledby="h-bild">
-        <h2 id="h-bild"><span class="step">1</span>Bild</h2>
-        <div class="img-info">
-          <canvas id="thumb" width="112" height="112"></canvas>
-          <div>
-            <strong id="imgName">Beispielbild <span class="tag">BEISPIEL</span></strong>
-            <small id="imgMeta">–</small>
-          </div>
-        </div>
-        <div class="btn-row">
-          <label class="btn primary" for="camInput">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
-            Scannen
-          </label>
-          <input class="file-input" id="camInput" type="file" accept="image/*" capture="environment">
-          <label class="btn" for="fileInput">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg>
-            Bild wählen
-          </label>
-          <input class="file-input" id="fileInput" type="file" accept="image/*">
-          <button class="btn" id="rotateBtn" type="button" aria-label="Bild um 90 Grad drehen">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
-            Drehen
-          </button>
-        </div>
-        <p class="hint">«Scannen» öffnet auf dem Handy direkt die Kamera. Bild möglichst gerade und formatfüllend fotografieren.</p>
-      </section>
+  <p class="hint" id="hint">Walzen mit dem Finger drehen oder den Knopf drücken, dann das Ergebnis eintippen.</p>
 
-      <section class="panel" aria-labelledby="h-teilen">
-        <h2 id="h-teilen"><span class="step">2</span>Aufteilung</h2>
-        <div class="field">
-          <span class="label">Grösse festlegen über</span>
-          <div class="seg" id="modeSeg">
-            <button type="button" data-v="pages" aria-pressed="true">Seitenanzahl</button>
-            <button type="button" data-v="percent" aria-pressed="false">Prozent</button>
-          </div>
-        </div>
-        <div class="field" id="percentBox" hidden>
-          <span class="label">Vergrösserung</span>
-          <div class="chips" id="pctChips"></div>
-          <div class="range">
-            <div class="range-head"><label class="hint" for="pctIn">Frei wählen (100 % = Bild füllt eine A4-Seite)</label>
-              <span class="pct-num"><input type="number" id="pctNum" min="25" max="1000" step="5" value="200" inputmode="numeric" aria-label="Prozent"> %</span></div>
-            <input type="range" id="pctIn" min="25" max="1000" step="5" value="200">
-          </div>
-        </div>
-        <div class="field" id="pagesBox">
-          <span class="label">Anzahl A4-Seiten</span>
-          <div class="chips" id="chips"></div>
-        </div>
-        <div class="grid-row" id="gridBox">
-          <div class="field">
-            <span class="label">Spalten</span>
-            <div class="stepper"><button type="button" id="colMinus" aria-label="Spalte weniger">−</button><output id="colsOut">2</output><button type="button" id="colPlus" aria-label="Spalte mehr">+</button></div>
-          </div>
-          <div class="field">
-            <span class="label">Zeilen</span>
-            <div class="stepper"><button type="button" id="rowMinus" aria-label="Zeile weniger">−</button><output id="rowsOut">2</output><button type="button" id="rowPlus" aria-label="Zeile mehr">+</button></div>
-          </div>
-        </div>
-        <div class="field">
-          <span class="label">Blattausrichtung</span>
-          <div class="seg" id="orientSeg">
-            <button type="button" data-v="p" aria-pressed="true">Hochformat</button>
-            <button type="button" data-v="l" aria-pressed="false">Querformat</button>
-          </div>
-        </div>
-        <div class="field" id="fitBox">
-          <span class="label">Einpassen</span>
-          <div class="seg" id="fitSeg">
-            <button type="button" data-v="contain" aria-pressed="true">Ganzes Bild</button>
-            <button type="button" data-v="cover" aria-pressed="false">Seiten füllen</button>
-          </div>
-        </div>
-        <div class="range">
-          <div class="range-head"><label class="label" for="marginIn">Druckrand</label><output id="marginOut">8 mm</output></div>
-          <input type="range" id="marginIn" min="3" max="20" step="1" value="8">
-        </div>
-        <div class="range">
-          <div class="range-head"><label class="label" for="overlapIn">Klebezugabe (Überlappung)</label><output id="overlapOut">10 mm</output></div>
-          <input type="range" id="overlapIn" min="0" max="30" step="1" value="10">
-        </div>
-        <label class="check"><input type="checkbox" id="guidesIn" checked> Klebelinien und Seitenbeschriftung drucken</label>
-      </section>
-    </aside>
+  <section class="machine" aria-label="Rechenmaschine">
+    <div class="reels">
+      <div class="reel" id="r1" tabindex="0" role="spinbutton" aria-label="Erste Zahl"></div>
+      <div class="reel op" id="r2" tabindex="0" role="spinbutton" aria-label="Rechenart"></div>
+      <div class="reel" id="r3" tabindex="0" role="spinbutton" aria-label="Zweite Zahl"></div>
+      <div class="reel op" id="r4" tabindex="0" role="spinbutton" aria-label="Zweite Rechenart"></div>
+      <div class="reel" id="r5" tabindex="0" role="spinbutton" aria-label="Dritte Zahl"></div>
+      <div class="arc" aria-hidden="true"></div>
+    </div>
+  </section>
 
-    <main class="stage">
-      <section class="poster-card" aria-labelledby="h-vorschau">
-        <div class="pages-head"><h2 id="h-vorschau"><span class="step">3</span>Vorschau Poster</h2></div>
-        <div class="stats" id="stats"></div>
-        <div class="poster-box"><canvas id="posterCanvas" width="600" height="800" aria-label="Vorschau des Posters mit Seitenraster"></canvas></div>
-        <p class="hint" id="qualityHint"></p>
-      </section>
+  <p class="help off" id="help" aria-live="polite" hidden></p>
 
-      <section class="poster-card" aria-labelledby="h-pdf">
-        <div class="pages-head">
-          <h2 id="h-pdf"><span class="step">4</span>PDF-Seiten</h2>
-          <span class="hint" id="pagesCount"></span>
+  <button class="spin" id="spin"><span aria-hidden="true">↻</span> Neue Aufgabe drehen</button>
+
+  <div class="result">
+    <div class="eq">=</div>
+    <div class="answer" id="answer" aria-live="polite"><span class="ph">dein Ergebnis</span></div>
+  </div>
+  <div class="msg" id="msg" aria-live="polite"></div>
+
+  <div class="pad" id="pad">
+    <button class="key" data-k="7">7</button><button class="key" data-k="8">8</button><button class="key" data-k="9">9</button><button class="key fn" data-k="del" aria-label="Löschen">⌫</button>
+    <button class="key" data-k="4">4</button><button class="key" data-k="5">5</button><button class="key" data-k="6">6</button><button class="key fn" data-k="neg" aria-label="Minus">−</button>
+    <button class="key" data-k="1">1</button><button class="key" data-k="2">2</button><button class="key" data-k="3">3</button><button class="key go" id="go" data-k="ok">Prüfen</button>
+    <button class="key zero" data-k="0">0</button>
+  </div>
+
+  <footer class="copy">© 2026 Mike Staub · Alle Rechte vorbehalten</footer>
+</div>
+
+<div class="ov" id="ov" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="setTitle">
+    <div class="sh-head"><h2 id="setTitle">Lehrperson</h2><button class="x" id="setClose" aria-label="Schliessen">✕</button></div>
+
+    <form id="pwForm" autocomplete="off">
+      <label for="pw">Passwort eingeben</label>
+      <input id="pw" type="password" autocomplete="off">
+      <p class="err" id="pwErr"></p>
+      <div class="actions"><button class="btn primary" type="submit">Öffnen</button></div>
+    </form>
+
+    <form id="setForm" hidden>
+      <fieldset>
+        <legend>Stufen</legend>
+        <div class="colhead"><span></span><span>Haken = für Kinder sichtbar</span><span>grösste Zahl</span></div>
+        <div class="lrow"><input type="checkbox" id="lv0"><label for="lv0">Entdecker<small>+ −</small></label><input type="number" id="mx0" min="2" max="100" inputmode="numeric" aria-label="Entdecker: grösste Zahl"></div>
+        <div class="lrow"><input type="checkbox" id="lv1"><label for="lv1">Forscher<small>+ − ×</small></label><input type="number" id="mx1" min="2" max="100" inputmode="numeric" aria-label="Forscher: grösste Zahl"></div>
+        <div class="lrow"><input type="checkbox" id="lv2"><label for="lv2">Profi<small>+ − × :</small></label><input type="number" id="mx2" min="2" max="100" inputmode="numeric" aria-label="Profi: grösste Zahl"></div>
+        <div class="lrow"><input type="checkbox" id="lv3"><label for="lv3">Professor<small id="mx3txt">√ bis 2500</small></label><input type="number" id="mx3" min="2" max="50" inputmode="numeric" aria-label="Professor: grösstes Ergebnis der Wurzel"></div>
+        <p class="note">Zahlen von 2 bis 100. Bei Professor ist es das grösste Ergebnis (2 bis 50).</p>
+      </fieldset>
+
+      <label class="tog"><input type="checkbox" id="setDrag"> Walzen von Hand drehen erlaubt</label>
+      <label class="tog"><input type="checkbox" id="setChain"> 3. Zahlenwalze, z. B. 4 + 3 × 2 (Punkt vor Strich, nicht bei Professor)</label>
+      <label class="tog"><input type="checkbox" id="setHelp"> Rechenhilfe bei Punkt vor Strich anzeigen</label>
+
+      <div class="srow"><span>Gesammelte Sterne: <b id="setStars">0</b></span><button type="button" class="btn" id="resetStars">Auf 0 setzen</button></div>
+
+      <fieldset>
+        <legend>Passwort ändern</legend>
+        <div class="pwrow">
+          <input id="pwNew" type="password" placeholder="Neues Passwort" autocomplete="new-password" aria-label="Neues Passwort">
+          <input id="pwNew2" type="password" placeholder="Neues Passwort wiederholen" autocomplete="new-password" aria-label="Neues Passwort wiederholen">
         </div>
-        <div class="pages" id="pages"></div>
-        <div class="export">
-          <button class="btn primary big" id="pdfBtn" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
-            PDF erstellen und speichern
-          </button>
-          <div class="progress" id="progress" hidden><i id="progressBar"></i></div>
-          <div class="toast" id="toast" hidden></div>
-          <p class="hint">Beim Drucken «Tatsächliche Grösse» bzw. 100 % wählen, nicht «An Seite anpassen». Sonst stimmen die Klebelinien nicht.</p>
-        </div>
-      </section>
-    </main>
+        <p class="note">Leer lassen, wenn das Passwort gleich bleiben soll.</p>
+      </fieldset>
+
+      <a class="btn doc" id="docLink" href="Ein_mal_Eins_Benutzerdokumentation.pdf" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>
+        Benutzerdokumentation öffnen
+      </a>
+
+      <p class="err" id="setErr"></p>
+      <div class="actions"><button type="button" class="btn" id="setCancel">Abbrechen</button><button type="submit" class="btn primary">Speichern</button></div>
+    </form>
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 (() => {
-  const A4 = { w: 210, h: 297 };
-  const state = {
-    img: null, name: "Beispielbild", sample: true,
-    cols: 2, rows: 2, orient: "p", fit: "contain",
-    mode: "pages", percent: 200,
-    margin: 8, overlap: 10, guides: true
-  };
+  const H = 64;
+  const range1 = m => Array.from({length:m}, (_, i) => i + 1);
+  let NUMS = range1(20);                                            // Zahlen der aktuellen Stufe
+  const divisors = a => NUMS.filter(d => d <= a && a % d === 0);    // nur Teiler, die aufgehen
+  const LEVELS = [
+    {max:20,  ops: ['+','−']},
+    {max:20,  ops: ['+','−','×']},
+    {max:20,  ops: ['+','−','×',':']},
+    {max:20,  ops: ['√'], root:true},    // Professor: nur Wurzelziehen
+  ];
+  // Einstellungen der Lehrperson (auf diesem Gerät gespeichert)
+  const SET_KEY = 'emeSettings', DEFAULT_PW = 'Admin';
+  const SET = {levels:[true, true, true, true], max:[20, 20, 20, 50], drag:true, chain:false, help:true, pw:null};
+  try {
+    const st = JSON.parse(localStorage.getItem(SET_KEY) || 'null');
+    if (st){
+      if (Array.isArray(st.levels) && st.levels.length === 4) SET.levels = st.levels.map(Boolean);
+      if (Array.isArray(st.max) && st.max.length === 4) SET.max = st.max.map((v, i) => clampMax(v, i));
+      if (typeof st.drag === 'boolean') SET.drag = st.drag;
+      if (typeof st.chain === 'boolean') SET.chain = st.chain;
+      if (typeof st.help === 'boolean') SET.help = st.help;
+      if (typeof st.pw === 'string') SET.pw = st.pw;
+    }
+  } catch(e) {}
+  function clampMax(v, i){ v = Math.round(Number(v)); const hi = i === 3 ? 50 : 100; return isFinite(v) ? Math.min(hi, Math.max(2, v)) : (i === 3 ? 50 : 20); }
+  if (!SET.levels.some(Boolean)) SET.levels[0] = true;
+  for (let i = 0; i < 3; i++) LEVELS[i].max = SET.max[i];
+
+  let level = 0;
+  try { const s = Number(localStorage.getItem('emeLevel')); if (s >= 0 && s <= 3) level = s; } catch(e) {}
+  if (!SET.levels[level]) level = SET.levels.indexOf(true);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const mod = (a,n) => ((a % n) + n) % n;
+
+  class Reel {
+    constructor(el, vals, start, onSettle){
+      this.el = el; this.vals = vals; this.n = vals.length;
+      this.pos = start; this.vel = 0; this.raf = null; this.onSettle = onSettle;
+      this.cells = [];
+      for (let i = 0; i < 7; i++){ const d = document.createElement('div'); d.className = 'cell'; el.appendChild(d); this.cells.push(d); }
+      this.label = el.getAttribute('aria-label'); this.bind(); this.render();
+    }
+    setVals(vals, start){ this.stop(); this.vals = vals; this.n = vals.length; this.pos = start; this.render(); }
+    get value(){ return this.vals[mod(Math.round(this.pos), this.n)]; }
+    render(){
+      const base = Math.round(this.pos);
+      this.cells.forEach((d,i) => {
+        const idx = base + i - 3, off = idx - this.pos, a = Math.min(Math.abs(off), 2);
+        d.textContent = this.vals[mod(idx, this.n)];
+        d.style.transform = `translateY(${off*H}px) scale(${1 - a*0.14})`;
+        d.style.opacity = this.n === 1 && Math.abs(off) > 0.5 ? 0 : 1 - a*0.35;
+      });
+      this.el.setAttribute('aria-label', this.label + ': ' + this.value);
+    }
+    stop(){ if (this.raf) cancelAnimationFrame(this.raf); this.raf = null; clearTimeout(this.wt); }
+    animateTo(target, dur, ease){
+      this.stop();
+      const from = this.pos, t0 = performance.now();
+      const step = now => {
+        const p = Math.min(1, (now - t0) / dur);
+        this.pos = from + (target - from) * ease(p); this.render();
+        if (p < 1) this.raf = requestAnimationFrame(step);
+        else { this.pos = target; this.render(); this.raf = null; this.onSettle && this.onSettle(); }
+      };
+      this.raf = requestAnimationFrame(step);
+    }
+    snap(){ this.animateTo(Math.round(this.pos), 220, p => 1 - Math.pow(1-p, 3)); }
+    momentum(){
+      this.stop();
+      let last = performance.now();
+      const step = now => {
+        const dt = Math.min(32, now - last); last = now;
+        this.pos += this.vel * dt; this.vel *= Math.exp(-dt / 320); this.render();
+        if (Math.abs(this.vel) > 0.0035) this.raf = requestAnimationFrame(step);
+        else { this.raf = null; this.snap(); }
+      };
+      this.raf = requestAnimationFrame(step);
+    }
+    bind(){
+      const el = this.el; let drag = false, ly = 0, lt = 0;
+      el.addEventListener('pointerdown', e => {
+        if (this.locked || !SET.drag) return;
+        this.stop(); drag = true; ly = e.clientY; lt = performance.now(); this.vel = 0;
+        el.setPointerCapture(e.pointerId);
+      });
+      el.addEventListener('pointermove', e => {
+        if (!drag) return;
+        const now = performance.now(), dy = e.clientY - ly, dt = Math.max(1, now - lt);
+        this.pos -= dy / H;
+        this.vel = 0.7 * ((-dy / H) / dt) + 0.3 * this.vel;
+        ly = e.clientY; lt = now; this.render();
+      });
+      const end = () => {
+        if (!drag) return; drag = false;
+        if (performance.now() - lt > 80) this.vel = 0;
+        this.vel = Math.max(-0.07, Math.min(0.07, this.vel));
+        Math.abs(this.vel) > 0.004 ? this.momentum() : this.snap();
+      };
+      el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+      el.addEventListener('wheel', e => {
+        if (!SET.drag) return; e.preventDefault(); if (this.locked) return; this.stop();
+        this.pos += e.deltaY / H * 0.6; this.render();
+        this.wt = setTimeout(() => this.snap(), 140);
+      }, {passive:false});
+      el.addEventListener('keydown', e => {
+        if (this.locked || !SET.drag) return;
+        const d = e.key === 'ArrowDown' ? 1 : e.key === 'ArrowUp' ? -1 : 0;
+        if (d){ e.preventDefault(); this.animateTo(Math.round(this.pos) + d, 180, p => 1 - Math.pow(1-p, 3)); }
+      });
+    }
+    spinTo(index, cells, dur){
+      // dreht mindestens `cells` Felder weiter und hält auf `index`
+      const base = Math.round(this.pos);
+      const target = base + cells + mod(index - base - cells, this.n);
+      this.animateTo(target, reduce ? 200 : dur, p => 1 - Math.pow(1-p, 4));
+    }
+  }
+
+  // ---- Zustand
+  let input = '', solved = false, stars = 0;
+  // Sterne starten bei jedem Öffnen der App bei 0
+  try { localStorage.removeItem('emeStars'); } catch(e) {}
   const $ = id => document.getElementById(id);
-  const fmt = (n, d = 1) => n.toLocaleString("de-CH", { minimumFractionDigits: d, maximumFractionDigits: d });
-  const rowLabel = r => String.fromCharCode(65 + (r % 26)) + (r >= 26 ? Math.floor(r / 26) : "");
+  const answerEl = $('answer'), msgEl = $('msg'), goBtn = $('go');
 
-  /* ---------- Beispielbild ---------- */
-  function makeSample() {
-    const c = document.createElement("canvas");
-    c.width = 1600; c.height = 1200;
-    const x = c.getContext("2d");
-    const sky = x.createLinearGradient(0, 0, 0, 1200);
-    sky.addColorStop(0, "#1b4d6b"); sky.addColorStop(.55, "#f2a65a"); sky.addColorStop(1, "#f7d9a6");
-    x.fillStyle = sky; x.fillRect(0, 0, 1600, 1200);
-    x.fillStyle = "#fff4d6"; x.beginPath(); x.arc(1150, 560, 110, 0, Math.PI * 2); x.fill();
-    const layer = (col, base, amp, seed) => {
-      x.fillStyle = col; x.beginPath(); x.moveTo(0, 1200);
-      for (let i = 0; i <= 1600; i += 20) {
-        const y = base - Math.abs(Math.sin(i / 230 + seed) * amp) - Math.sin(i / 71 + seed * 3) * amp * .18;
-        x.lineTo(i, y);
-      }
-      x.lineTo(1600, 1200); x.closePath(); x.fill();
-    };
-    layer("#6d7f9a", 760, 260, 1.2);
-    layer("#3f5570", 860, 210, 2.7);
-    layer("#24384a", 980, 150, .4);
-    layer("#13222d", 1100, 90, 4.1);
-    x.fillStyle = "rgba(255,255,255,.85)"; x.font = "600 54px Archivo, Arial, sans-serif";
-    x.fillText("Beispielbild", 70, 120);
-    const img = new Image();
-    img.onload = () => { state.img = img; refreshAll(); };
-    img.src = c.toDataURL("image/jpeg", .92);
-  }
-
-  /* ---------- Geometrie ---------- */
-  function sheet(orient = state.orient) {
-    return orient === "p" ? { w: A4.w, h: A4.h } : { w: A4.h, h: A4.w };
-  }
-  function layout(s = state) {
-    const sh = sheet(s.orient);
-    const pw = sh.w - 2 * s.margin, ph = sh.h - 2 * s.margin;
-    const stepX = pw - s.overlap, stepY = ph - s.overlap;
-    const W = s.cols * pw - (s.cols - 1) * s.overlap;
-    const H = s.rows * ph - (s.rows - 1) * s.overlap;
-    const iw = s.img ? s.img.naturalWidth : 4, ih = s.img ? s.img.naturalHeight : 3;
-    const base = baseScale(s);
-    const sc = s.mode === "percent" ? base * s.percent / 100
-      : s.fit === "cover" ? Math.max(W / iw, H / ih) : Math.min(W / iw, H / ih);
-    const dw = iw * sc, dh = ih * sc;
-    return { sh, pw, ph, stepX, stepY, W, H, ix: (W - dw) / 2, iy: (H - dh) / 2, dw, dh, iw, ih, pct: sc / base * 100 };
-  }
-  // 100 % = Bild passt genau auf eine A4-Seite (beste Ausrichtung, innerhalb Druckrand)
-  function baseScale(s = state) {
-    const iw = s.img ? s.img.naturalWidth : 4, ih = s.img ? s.img.naturalHeight : 3;
-    const a = A4.w - 2 * s.margin, b = A4.h - 2 * s.margin;
-    return Math.max(Math.min(a / iw, b / ih), Math.min(b / iw, a / ih));
-  }
-  function gridForPercent(orient) {
-    const sh = sheet(orient);
-    const pw = sh.w - 2 * state.margin, ph = sh.h - 2 * state.margin, o = state.overlap;
-    const sc = baseScale() * state.percent / 100;
-    const dw = state.img.naturalWidth * sc, dh = state.img.naturalHeight * sc;
-    const cols = dw <= pw + 0.01 ? 1 : Math.ceil((dw - o) / (pw - o) - 1e-6);
-    const rows = dh <= ph + 0.01 ? 1 : Math.ceil((dh - o) / (ph - o) - 1e-6);
-    return { cols, rows, n: cols * rows, orient };
-  }
-  function applyPercent(autoOrient) {
-    if (!state.img) return;
-    let g = gridForPercent(state.orient);
-    if (autoOrient) {
-      const other = gridForPercent(state.orient === "p" ? "l" : "p");
-      if (other.n < g.n) g = other;
+  // ---- Rechnen (mit Punkt vor Strich bei drei Zahlen)
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  const pickIdx = arr => Math.floor(Math.random() * arr.length);
+  const hi = o => o === '×' || o === ':';
+  const ap = (x, o, y) => o === '+' ? x + y : o === '−' ? x - y : o === '×' ? x * y : x / y;
+  const step = (x, o, y) => (o === ':' && x % y) ? null : ap(x, o, y);
+  const notEven = (x, y) => ({ok:false, why:`${x} : ${y} geht nicht auf. Dreh weiter!`});
+  function evalTask(a, o1, b, o2, c){
+    if (o1 === '√') return {ok:true, res:Math.sqrt(b)};
+    if (o2 === undefined){ const r = step(a, o1, b); return r === null ? notEven(a, b) : {ok:true, res:r}; }
+    if (hi(o2) && !hi(o1)){                       // Punkt vor Strich: zuerst b o2 c
+      const r = step(b, o2, c); if (r === null) return notEven(b, c);
+      return {ok:true, res:ap(a, o1, r)};
     }
-    state.cols = g.cols; state.rows = g.rows; state.orient = g.orient;
+    const l = step(a, o1, b); if (l === null) return notEven(a, b);
+    const r = step(l, o2, c); if (r === null) return notEven(l, c);
+    return {ok:true, res:r};
   }
-  function setPercent(p) {
-    state.percent = Math.max(25, Math.min(1000, Math.round(+p || 100)));
-    state.mode = "percent"; applyPercent(true); refreshAll();
+  const chainOn = L => SET.chain && !L.root;
+
+  // Rechenhilfe: wenn Punkt- und Strichrechnung gemischt sind (z. B. 4 + 3 × 2 oder 4 × 3 + 2)
+  function updateHelp(spinning){
+    const el = document.getElementById('help'), reelsEl = document.querySelector('.reels');
+    const show = SET.help && chainOn(LEVELS[level]);
+    el.hidden = !show;
+    const o1 = r2.value, o2 = r4.value;
+    const right = hi(o2) && !hi(o1), left = hi(o1) && !hi(o2);
+    const need = show && !spinning && (right || left);
+    el.classList.toggle('off', !need);
+    reelsEl.classList.toggle('prec', need && right);
+    reelsEl.classList.toggle('precL', need && left);
+    reelsEl.classList.toggle('helpon', show);
+    el.innerHTML = !need ? 'Punkt vor Strich!'
+      : right
+        ? `Punkt vor Strich! Rechne zuerst <b>${r3.value} ${o2} ${r5.value}</b>, dann <b>${r1.value} ${o1}</b> dein Zwischenergebnis.`
+        : `Punkt vor Strich! Rechne zuerst <b>${r1.value} ${o1} ${r3.value}</b>, dann dein Zwischenergebnis <b>${o2} ${r5.value}</b>.`;
   }
-  function bestGrid(n) {
-    let best = null;
-    for (const orient of ["p", "l"]) {
-      for (let c = 1; c <= n; c++) {
-        if (n % c) continue;
-        const r = n / c;
-        const L = layout({ ...state, cols: c, rows: r, orient, fit: "contain", mode: "pages" });
-        const used = L.dw * L.dh;
-        if (!best || used > best.used + 1) best = { c, r, orient, used };
-      }
+
+  // Werte der Zahlenwalzen hinter einem «:» – nur Zahlen, die aufgehen
+  let SQUARES = range1(SET.max[3]).map(n => n * n);                // 1, 4, 9 … (bis 2500)
+  const r3vals = (a, sym) => sym === '√' ? SQUARES : sym === ':' ? divisors(a) : NUMS;
+  function r5vals(a, o1, b, o2){
+    if (o2 !== ':') return NUMS;
+    const base = hi(o1) ? step(a, o1, b) : b;
+    return base === null ? NUMS : divisors(base);
+  }
+  const sameVals = (x, y) => x.length === y.length && x.every((v, i) => v === y[i]);
+  function syncReel(reel, want){
+    if (sameVals(want, reel.vals)) return;
+    const cur = reel.value;
+    let i = want.indexOf(cur);
+    if (i < 0) i = want.reduce((best, v, j) => Math.abs(v - cur) < Math.abs(want[best] - cur) ? j : best, 0);
+    reel.setVals(want, i);
+  }
+
+  // Zufallsaufgabe: Minus nie negativ, Geteilt geht immer auf
+  function makeTask(L){
+    for (let tries = 0; tries < 80; tries++){
+      const op = pickIdx(L.ops), sym = L.ops[op];
+      let a = pick(NUMS), b = pick(NUMS);
+      if (sym === '−' && b > a) [a, b] = [b, a];
+      if (sym === ':') b = pick(divisors(a));
+      if (sym === '√') b = pick(SQUARES);
+      if (!chainOn(L)) return {a, op, b};
+      const op2 = pickIdx(L.ops), s2 = L.ops[op2];
+      const c = pick(r5vals(a, sym, b, s2));
+      const t = evalTask(a, sym, b, s2, c);
+      if (t.ok && t.res >= 0) return {a, op, b, op2, c};
     }
-    return best;
+    return {a:1, op:0, b:1, op2:0, c:1};
   }
 
-  /* ---------- Kachel zeichnen ---------- */
-  function drawTile(ctx, c, r, k, L, withGuides) {
-    const x0 = c * L.stepX, y0 = r * L.stepY;
-    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, L.pw * k, L.ph * k);
-    ctx.save();
-    ctx.beginPath(); ctx.rect(0, 0, L.pw * k, L.ph * k); ctx.clip();
-    ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(state.img, (L.ix - x0) * k, (L.iy - y0) * k, L.dw * k, L.dh * k);
-    ctx.restore();
-    if (withGuides && state.overlap > 0) {
-      ctx.save();
-      ctx.strokeStyle = "rgba(0,0,0,.55)"; ctx.lineWidth = Math.max(1, .25 * k);
-      ctx.setLineDash([2 * k, 1.5 * k]);
-      if (c < state.cols - 1) { const gx = (L.pw - state.overlap) * k; ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, L.ph * k); ctx.stroke(); }
-      if (r < state.rows - 1) { const gy = (L.ph - state.overlap) * k; ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(L.pw * k, gy); ctx.stroke(); }
-      ctx.restore();
+  const L0 = LEVELS[level]; NUMS = range1(L0.max); const t0 = makeTask(L0);
+  const r1 = new Reel($('r1'), NUMS, t0.a - 1, changed);
+  const r2 = new Reel($('r2'), L0.ops, t0.op, changed);
+  const r3vals0 = r3vals(t0.a, L0.ops[t0.op]);
+  const r3 = new Reel($('r3'), r3vals0, r3vals0.indexOf(t0.b), changed);
+  const r4 = new Reel($('r4'), L0.ops, t0.op2 || 0, changed);
+  const r5vals0 = chainOn(L0) ? r5vals(t0.a, L0.ops[t0.op], t0.b, L0.ops[t0.op2]) : NUMS;
+  const r5 = new Reel($('r5'), r5vals0, chainOn(L0) ? r5vals0.indexOf(t0.c) : 0, changed);
+
+  function setRootMode(L){
+    document.querySelector('.reels').classList.toggle('root', !!L.root);
+    document.querySelector('.reels').classList.toggle('chain', chainOn(L));
+    r2.el.setAttribute('aria-label', L.root ? 'Wurzel' : 'Rechenart');
+    r2.label = r2.el.getAttribute('aria-label').split(':')[0];
+    r3.label = L.root ? 'Zahl unter der Wurzel' : 'Zweite Zahl';
+    r2.render(); r3.render();
+  }
+  setRootMode(L0);
+  function setLevel(l){
+    level = l;
+    try { localStorage.setItem('emeLevel', String(l)); } catch(e) {}
+    document.querySelectorAll('.lvl').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.l) === l)));
+    const L = LEVELS[l];
+    NUMS = range1(L.max);
+    r1.setVals(NUMS, 0); r2.setVals(L.ops, 0); r3.setVals(NUMS, 0); r4.setVals(L.ops, 0); r5.setVals(NUMS, 0);
+    setRootMode(L);
+    spinAll();
+  }
+  document.querySelectorAll('.lvl').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.l) === level)));
+  $('levels').addEventListener('click', e => { const b = e.target.closest('.lvl'); if (b) setLevel(Number(b.dataset.l)); });
+
+  function task(){
+    return chainOn(LEVELS[level])
+      ? evalTask(r1.value, r2.value, r3.value, r4.value, r5.value)
+      : evalTask(r1.value, r2.value, r3.value);
+  }
+
+  function changed(){
+    syncReel(r3, r3vals(r1.value, r2.value));
+    if (chainOn(LEVELS[level])) syncReel(r5, r5vals(r1.value, r2.value, r3.value, r4.value));
+    input = ''; solved = false; drawAnswer('');
+    const t = task();
+    setMsg(t.ok ? '' : t.why, t.ok ? '' : 'info');
+    updateHelp();
+    goBtn.disabled = !t.ok;
+  }
+
+  function drawAnswer(cls){
+    answerEl.className = 'answer' + (cls ? ' ' + cls : '');
+    answerEl.innerHTML = input === '' ? '<span class="ph">dein Ergebnis</span>' : input.replace('-', '−');
+  }
+  function setMsg(t, cls){ msgEl.textContent = t; msgEl.className = 'msg' + (cls ? ' ' + cls : ''); }
+
+  function press(k){
+    if (k === 'ok') return check();
+    if (solved) { input = ''; solved = false; }
+    fxId++;
+    if (k === 'del') input = input.slice(0, -1);
+    else if (k === 'neg') input = input.startsWith('-') ? input.slice(1) : '-' + input;
+    else if (/^\d$/.test(k) && input.replace('-','').length < 7) input = (input === '0' ? '' : input === '-0' ? '-' : input) + k;
+    drawAnswer(''); if (msgEl.classList.contains('wrong')) setMsg('');
+  }
+
+  function check(){
+    const t = task();
+    if (!t.ok) return setMsg(t.why, 'info');
+    if (input === '' || input === '-') return setMsg('Tippe zuerst eine Zahl ein.', 'info');
+    if (solved) return;
+    if (Number(input) === t.res){
+      solved = true; stars++; $('score').textContent = stars;
+      drawAnswer('right');
+      setMsg(['Super gemacht!','Genau richtig!','Bravo!','Toll gerechnet!'][stars % 4], 'right');
+      burst(answerEl);
+    } else {
+      wrongFx();
+      setMsg('Fast! Probier es nochmal.', 'wrong');
     }
   }
 
-  /* ---------- Vorschau ---------- */
-  function renderPoster() {
-    const L = layout();
-    const cv = $("posterCanvas");
-    const box = cv.parentElement.getBoundingClientRect();
-    const maxW = Math.max(200, box.width - 36), maxH = Math.max(320, Math.min(window.innerHeight * .62, 760));
-    const pad = 0;
-    const k = Math.min(maxW / L.W, maxH / L.H);
-    const dpr = window.devicePixelRatio || 1;
-    cv.width = Math.round(L.W * k * dpr); cv.height = Math.round(L.H * k * dpr);
-    cv.style.width = Math.round(L.W * k) + "px";
-    const x = cv.getContext("2d");
-    x.setTransform(dpr, 0, 0, dpr, 0, 0);
-    x.fillStyle = "#fff"; x.fillRect(0, 0, L.W * k, L.H * k);
-    x.save(); x.beginPath(); x.rect(0, 0, L.W * k, L.H * k); x.clip();
-    x.drawImage(state.img, L.ix * k, L.iy * k, L.dw * k, L.dh * k);
-    x.restore();
-    // Überlappungen
-    const accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#3fd49a";
-    x.fillStyle = hexA(accent, .22);
-    for (let c = 1; c < state.cols; c++) x.fillRect(c * L.stepX * k, 0, state.overlap * k, L.H * k);
-    for (let r = 1; r < state.rows; r++) x.fillRect(0, r * L.stepY * k, L.W * k, state.overlap * k);
-    // Seitengrenzen
-    x.strokeStyle = accent; x.lineWidth = 1.5;
-    for (let r = 0; r < state.rows; r++) for (let c = 0; c < state.cols; c++) {
-      x.strokeRect(c * L.stepX * k + .75, r * L.stepY * k + .75, L.pw * k - 1.5, L.ph * k - 1.5);
+  // ---- Falsch: ein Radiergummi rubbelt die Zahl weg
+  let fxId = 0;
+  function wrongFx(){
+    const id = ++fxId, shown = input.replace('-', '\u2212');
+    input = '';                                   // nächste Eingabe beginnt frisch
+    answerEl.className = 'answer wrong';
+    answerEl.innerHTML = '';
+    const r = answerEl.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const n = document.createElement('div'); n.className = 'bnum'; n.textContent = shown;
+    document.body.appendChild(n);
+    const nw = n.offsetWidth, nh = n.offsetHeight;
+    n.style.left = (cx - nw / 2) + 'px'; n.style.top = (cy - nh / 2) + 'px';
+    const done = () => { if (id === fxId){ answerEl.className = 'answer'; drawAnswer(''); } };
+
+    if (reduce){
+      n.animate([{opacity:1},{opacity:1, offset:.6},{opacity:0}], {duration:1200, fill:'forwards'})
+       .onfinish = () => { n.remove(); done(); };
+      return;
     }
-    // Beschriftung
-    const fs = Math.max(11, Math.min(22, L.pw * k * .1));
-    x.font = `600 ${fs}px "IBM Plex Mono", monospace`; x.textAlign = "center"; x.textBaseline = "middle";
-    for (let r = 0; r < state.rows; r++) for (let c = 0; c < state.cols; c++) {
-      const cx = (c * L.stepX + L.pw / 2) * k, cy = (r * L.stepY + L.ph / 2) * k;
-      const t = rowLabel(r) + (c + 1);
-      x.fillStyle = "rgba(10,20,16,.72)";
-      x.beginPath(); x.arc(cx, cy, fs * 1.25, 0, Math.PI * 2); x.fill();
-      x.fillStyle = "#fff"; x.fillText(t, cx, cy + 1);
+
+    const er = document.createElement('div'); er.className = 'eraser';
+    er.style.left = cx + 'px'; er.style.top = (cy + 4) + 'px';
+    document.body.appendChild(er);
+    const span = nw / 2 + 6, passes = 6, T = 3300;
+    const tIn = 600 / T, tRub = 2100 / T;
+    const kf = [{transform:`translate(${innerWidth - cx + 60}px,-160px) rotate(-35deg)`, offset:0, easing:'ease-out'}];
+    for (let i = 0; i <= passes; i++){
+      const x = (i % 2 ? 1 : -1) * span, y = (i % 2 ? -3 : 3) + i;
+      kf.push({transform:`translate(${x}px,${y}px) rotate(${i % 2 ? -14 : -22}deg)`, offset:tIn + tRub * i / passes, easing:'ease-in-out'});
     }
-  }
-  function hexA(hex, a) {
-    const m = hex.replace("#", "");
-    if (m.length !== 6) return `rgba(63,212,154,${a})`;
-    return `rgba(${parseInt(m.slice(0, 2), 16)},${parseInt(m.slice(2, 4), 16)},${parseInt(m.slice(4, 6), 16)},${a})`;
-  }
+    kf.push({transform:`translate(${innerWidth - cx + 60}px,-140px) rotate(-30deg)`, offset:1, easing:'ease-in'});
+    er.animate(kf, {duration:T, fill:'forwards'}).onfinish = () => er.remove();
 
-  function renderPages() {
-    const L = layout();
-    const wrap = $("pages");
-    wrap.style.setProperty("--cols", Math.min(state.cols, window.innerWidth < 520 ? 3 : 6));
-    wrap.innerHTML = "";
-    const thumbW = Math.min(260, Math.max(90, wrap.getBoundingClientRect().width / Math.min(state.cols, 6)));
-    const k = (thumbW * (window.devicePixelRatio || 1)) / L.sh.w;
-    for (let r = 0; r < state.rows; r++) for (let c = 0; c < state.cols; c++) {
-      const fig = document.createElement("div"); fig.className = "sheet";
-      const cv = document.createElement("canvas");
-      cv.width = Math.round(L.sh.w * k); cv.height = Math.round(L.sh.h * k);
-      const x = cv.getContext("2d");
-      x.fillStyle = "#fff"; x.fillRect(0, 0, cv.width, cv.height);
-      x.save(); x.translate(state.margin * k, state.margin * k);
-      drawTile(x, c, r, k, L, state.guides);
-      x.restore();
-      x.strokeStyle = "rgba(0,0,0,.12)"; x.setLineDash([3, 3]);
-      x.strokeRect(state.margin * k, state.margin * k, L.pw * k, L.ph * k);
-      cv.setAttribute("aria-label", `Seite ${rowLabel(r)}${c + 1}`);
-      const lab = document.createElement("span");
-      lab.textContent = `${rowLabel(r)}${c + 1} · S. ${r * state.cols + c + 1}`;
-      fig.append(cv, lab); wrap.append(fig);
+    // Zahl verblasst Strich für Strich
+    const nk = [{opacity:1, filter:'blur(0)', offset:0}, {opacity:1, filter:'blur(0)', offset:tIn}];
+    for (let i = 1; i <= passes; i++){
+      const o = Math.max(0, 1 - i / (passes - 1));
+      nk.push({opacity:o, filter:`blur(${(1 - o) * 2}px)`, offset:tIn + tRub * i / passes});
     }
-    $("pagesCount").textContent = `${state.cols * state.rows} ${state.cols * state.rows === 1 ? "Seite" : "Seiten"} A4 ${state.orient === "p" ? "hoch" : "quer"}`;
-  }
+    nk.push({opacity:0, offset:1});
+    n.animate(nk, {duration:T, fill:'forwards'}).onfinish = () => n.remove();
 
-  function renderStats() {
-    const L = layout();
-    const visW = Math.min(L.dw, L.W), visH = Math.min(L.dh, L.H);
-    const pxPerMm = state.fit === "cover" ? L.iw / L.dw : L.iw / L.dw;
-    const dpi = pxPerMm * 25.4;
-    const s = $("stats");
-    s.innerHTML = `
-      <div class="stat"><div class="label">Postergrösse</div><div class="v">${fmt(L.W / 10)} × ${fmt(L.H / 10)} <small>cm</small></div></div>
-      <div class="stat"><div class="label">Bildfläche</div><div class="v">${fmt(visW / 10)} × ${fmt(visH / 10)} <small>cm</small></div></div>
-      <div class="stat"><div class="label">Vergrösserung</div><div class="v">${Math.round(L.pct)} <small>%</small></div></div>
-      <div class="stat ${dpi < 100 ? "warn" : ""}"><div class="label">Druckauflösung</div><div class="v">${Math.round(dpi)} <small>dpi</small></div></div>`;
-    const h = $("qualityHint");
-    if (dpi < 70) { h.className = "hint warn"; h.textContent = "Das Bild hat für diese Grösse zu wenig Pixel und wird deutlich unscharf. Weniger Seiten wählen oder mit höherer Auflösung scannen."; }
-    else if (dpi < 100) { h.className = "hint warn"; h.textContent = "Leicht unscharf aus der Nähe, aus etwas Abstand gut. Ab etwa 100 dpi wirkt es sauber."; }
-    else { h.className = "hint"; h.textContent = "Grün schraffiert ist die Klebezugabe: dort überlappen sich die Blätter. Die Buchstaben-Zahl-Codes stehen auch auf dem Ausdruck."; }
-    $("imgMeta").textContent = `${L.iw} × ${L.ih} px`;
-  }
-
-  function renderThumb() {
-    const cv = $("thumb"), x = cv.getContext("2d");
-    x.clearRect(0, 0, 112, 112);
-    const sc = Math.min(112 / state.img.naturalWidth, 112 / state.img.naturalHeight);
-    const w = state.img.naturalWidth * sc, h = state.img.naturalHeight * sc;
-    x.drawImage(state.img, (112 - w) / 2, (112 - h) / 2, w, h);
-  }
-
-  function renderControls() {
-    $("colsOut").textContent = state.cols; $("rowsOut").textContent = state.rows;
-    const n = state.cols * state.rows;
-    document.querySelectorAll("#chips .chip").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.n === n)));
-    document.querySelectorAll("#orientSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === state.orient)));
-    document.querySelectorAll("#fitSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === state.fit)));
-    document.querySelectorAll("#modeSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === state.mode)));
-    const pm = state.mode === "percent";
-    $("percentBox").hidden = !pm; $("pagesBox").hidden = pm; $("fitBox").hidden = pm;
-    document.querySelectorAll("#pctChips .chip").forEach(b => b.setAttribute("aria-pressed", String(pm && +b.dataset.p === state.percent)));
-    if (document.activeElement !== $("pctNum")) $("pctNum").value = state.percent;
-    $("pctIn").value = state.percent;
-    $("marginOut").textContent = state.margin + " mm"; $("overlapOut").textContent = state.overlap + " mm";
-    const name = $("imgName");
-    name.textContent = state.name;
-    if (state.sample) { const t = document.createElement("span"); t.className = "tag"; t.textContent = "BEISPIEL"; name.append(" ", t); }
-  }
-
-  let raf = 0;
-  function refreshAll() {
-    if (!state.img) return;
-    if (state.mode === "percent") applyPercent(false);
-    cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(() => { renderControls(); renderThumb(); renderStats(); renderPoster(); renderPages(); });
-  }
-
-  /* ---------- Bedienung ---------- */
-  [2, 3, 4, 6, 8, 9, 12, 16, 20].forEach(n => {
-    const b = document.createElement("button");
-    b.type = "button"; b.className = "chip"; b.dataset.n = n; b.textContent = n;
-    b.setAttribute("aria-pressed", "false");
-    b.addEventListener("click", () => {
-      state.mode = "pages"; const g = bestGrid(n); state.cols = g.c; state.rows = g.r; state.orient = g.orient; refreshAll();
-    });
-    $("chips").append(b);
-  });
-  const clamp = v => Math.max(1, Math.min(10, v));
-  $("colMinus").onclick = () => { state.mode = "pages"; state.cols = clamp(state.cols - 1); refreshAll(); };
-  $("colPlus").onclick = () => { state.mode = "pages"; state.cols = clamp(state.cols + 1); refreshAll(); };
-  $("rowMinus").onclick = () => { state.mode = "pages"; state.rows = clamp(state.rows - 1); refreshAll(); };
-  $("rowPlus").onclick = () => { state.mode = "pages"; state.rows = clamp(state.rows + 1); refreshAll(); };
-  [100, 150, 200, 250, 300, 400, 500].forEach(p => {
-    const b = document.createElement("button");
-    b.type = "button"; b.className = "chip"; b.dataset.p = p; b.textContent = p + "%";
-    b.setAttribute("aria-pressed", "false");
-    b.addEventListener("click", () => setPercent(p));
-    $("pctChips").append(b);
-  });
-  $("pctIn").oninput = e => setPercent(e.target.value);
-  $("pctNum").onchange = e => setPercent(e.target.value);
-  $("pctNum").onkeydown = e => { if (e.key === "Enter") setPercent(e.target.value); };
-  document.querySelectorAll("#modeSeg button").forEach(b => b.onclick = () => {
-    if (b.dataset.v === state.mode) return;
-    if (b.dataset.v === "percent") {
-      state.percent = Math.max(25, Math.min(1000, Math.round(layout().pct / 5) * 5));
-      state.mode = "percent"; applyPercent(false);
-    } else state.mode = "pages";
-    refreshAll();
-  });
-  document.querySelectorAll("#orientSeg button").forEach(b => b.onclick = () => { state.orient = b.dataset.v; refreshAll(); });
-  document.querySelectorAll("#fitSeg button").forEach(b => b.onclick = () => { state.fit = b.dataset.v; refreshAll(); });
-  $("marginIn").oninput = e => { state.margin = +e.target.value; refreshAll(); };
-  $("overlapIn").oninput = e => { state.overlap = +e.target.value; refreshAll(); };
-  $("guidesIn").onchange = e => { state.guides = e.target.checked; refreshAll(); };
-
-  function loadFile(file) {
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      // Sehr grosse Fotos begrenzen, damit das Handy nicht ausgeht
-      const max = 7000, big = Math.max(img.naturalWidth, img.naturalHeight);
-      if (big > max) {
-        const s = max / big, c = document.createElement("canvas");
-        c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
-        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-        const im2 = new Image(); im2.onload = () => setImg(im2, file.name); im2.src = c.toDataURL("image/jpeg", .93);
-        URL.revokeObjectURL(url);
-      } else setImg(img, file.name);
-    };
-    img.onerror = () => { showToast("Dieses Bildformat kann der Browser nicht öffnen. Bitte als JPG oder PNG speichern und erneut wählen.", true); URL.revokeObjectURL(url); };
-    img.src = url;
-  }
-  function setImg(img, name) {
-    state.img = img; state.name = name || "Scan"; state.sample = false;
-    if (state.mode === "percent") applyPercent(true);
-    else { const g = bestGrid(state.cols * state.rows); state.cols = g.c; state.rows = g.r; state.orient = g.orient; }
-    $("toast").hidden = true; refreshAll();
-  }
-  $("camInput").onchange = e => { loadFile(e.target.files[0]); e.target.value = ""; };
-  $("fileInput").onchange = e => { loadFile(e.target.files[0]); e.target.value = ""; };
-
-  $("rotateBtn").onclick = () => {
-    if (!state.img) return;
-    const c = document.createElement("canvas");
-    c.width = state.img.naturalHeight; c.height = state.img.naturalWidth;
-    const x = c.getContext("2d");
-    x.translate(c.width, 0); x.rotate(Math.PI / 2); x.drawImage(state.img, 0, 0);
-    const img = new Image();
-    img.onload = () => {
-      state.img = img;
-      if (state.mode === "percent") applyPercent(true);
-      else { const g = bestGrid(state.cols * state.rows); state.cols = g.c; state.rows = g.r; state.orient = g.orient; }
-      refreshAll();
-    };
-    img.src = c.toDataURL("image/jpeg", .93);
-  };
-
-  // Bild auch per Drag & Drop oder Einfügen
-  window.addEventListener("dragover", e => e.preventDefault());
-  window.addEventListener("drop", e => { e.preventDefault(); const f = [...(e.dataTransfer?.files || [])].find(f => f.type.startsWith("image/")); if (f) loadFile(f); });
-  window.addEventListener("paste", e => { const f = [...(e.clipboardData?.files || [])].find(f => f.type.startsWith("image/")); if (f) loadFile(f); });
-
-  let rt = 0;
-  window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(refreshAll, 120); });
-
-  /* ---------- PDF ---------- */
-  function showToast(msg, err) { const t = $("toast"); t.textContent = msg; t.className = "toast" + (err ? " err" : ""); t.hidden = false; }
-
-  let downloads = null;
-  if (window.claude?.use) window.claude.use("downloads").then(d => { downloads = d; }).catch(() => {});
-
-  // Anleitung: auf GitHub normaler Link, in Claude über den Speichern-Dialog
-  $("docBtn").addEventListener("click", async e => {
-    if (!downloads) return;
-    e.preventDefault();
-    try {
-      const res = await fetch($("docBtn").getAttribute("href"));
-      if (!res.ok) throw new Error("fetch");
-      await downloads.save({ filename: "ZAP-App_Benutzerdokumentation.pdf", data: await res.blob() });
-    } catch (err) {
-      if (err?.code === "declined") return;
-      showToast("Die Anleitung konnte nicht geöffnet werden. Bitte später nochmals versuchen.", true);
-    }
-  });
-
-  $("pdfBtn").onclick = async () => {
-    if (!state.img) return;
-    if (!window.jspdf) { showToast("Die PDF-Funktion konnte nicht geladen werden. Seite neu laden und nochmals versuchen.", true); return; }
-    const btn = $("pdfBtn"); btn.disabled = true;
-    const bar = $("progressBar"); $("progress").hidden = false; bar.style.width = "0%";
-    $("toast").hidden = true;
-    try {
-      const L = layout();
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ orientation: state.orient === "p" ? "portrait" : "landscape", unit: "mm", format: "a4", compress: true });
-      // Auflösung: nicht höher als das Bild hergibt, max. 200 dpi
-      const srcPxPerMm = L.iw / L.dw;
-      const k = Math.max(4, Math.min(200 / 25.4, srcPxPerMm * 1.1));
-      const cv = document.createElement("canvas");
-      cv.width = Math.round(L.pw * k); cv.height = Math.round(L.ph * k);
-      const x = cv.getContext("2d");
-      const total = state.cols * state.rows; let i = 0;
-      for (let r = 0; r < state.rows; r++) for (let c = 0; c < state.cols; c++) {
-        if (i > 0) doc.addPage("a4", state.orient === "p" ? "portrait" : "landscape");
-        drawTile(x, c, r, k, L, state.guides);
-        doc.addImage(cv.toDataURL("image/jpeg", .9), "JPEG", state.margin, state.margin, L.pw, L.ph, undefined, "FAST");
-        if (state.guides && state.margin >= 5) {
-          doc.setFontSize(7); doc.setTextColor(110);
-          doc.text(`${rowLabel(r)}${c + 1}   Seite ${i + 1}/${total}   Zeile ${rowLabel(r)}, Spalte ${c + 1}`, state.margin, state.margin - 1.8);
+    // Radierkrümel bei jedem Richtungswechsel
+    for (let i = 0; i <= passes; i++){
+      setTimeout(() => {
+        const side = i % 2 ? 1 : -1, x0 = cx + side * (span + 20), y0 = cy + 18;
+        for (let c = 0; c < 5; c++){
+          const k = document.createElement('div'); k.className = 'crumb';
+          k.style.left = x0 + 'px'; k.style.top = y0 + 'px';
+          document.body.appendChild(k);
+          const dx = side * (10 + Math.random() * 40), up = -(8 + Math.random() * 22), rot = Math.random() * 360;
+          k.animate([
+            {transform:`translate(0,0) rotate(${rot}deg) scale(${.6 + Math.random() * .7})`, opacity:1},
+            {transform:`translate(${dx * .6}px,${up}px) rotate(${rot + 120}deg)`, opacity:1, offset:.35},
+            {transform:`translate(${dx}px,${40 + Math.random() * 30}px) rotate(${rot + 260}deg)`, opacity:0}
+          ], {duration:1100 + Math.random() * 400, easing:'cubic-bezier(.3,.6,.6,1)', fill:'forwards'}).onfinish = () => k.remove();
         }
-        i++; bar.style.width = Math.round(i / total * 100) + "%";
-        await new Promise(res => setTimeout(res, 0));
-      }
-      const blob = doc.output("blob");
-      const base = (state.sample ? "zoom-beispiel" : state.name.replace(/\.[^.]+$/, "")).replace(/[^\w\-äöüÄÖÜ]+/g, "-").slice(0, 60) || "zoom";
-      const fname = `${base}_${state.cols}x${state.rows}_A4.pdf`;
-      if (!downloads) {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url; a.download = fname; document.body.append(a); a.click(); a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 60000);
-        showToast(`PDF gespeichert (${total} Seiten, ${fmt(blob.size / 1048576)} MB). Jetzt öffnen und mit 100 % drucken.`);
-        return;
-      }
-      try {
-        await downloads.save({ filename: fname, data: blob });
-        showToast(`PDF gespeichert (${total} Seiten, ${fmt(blob.size / 1048576)} MB). Jetzt öffnen und mit 100 % drucken.`);
-      } catch (err) {
-        if (err?.code === "declined") showToast("Speichern abgebrochen.", true);
-        else if (err?.code === "rate_limited") showToast("Es ist schon ein Speicherdialog offen. Kurz warten und nochmals tippen.", true);
-        else showToast("Das PDF konnte hier nicht gespeichert werden.", true);
-      }
-    } catch (e) {
-      showToast("Beim Erstellen des PDFs ist ein Fehler aufgetreten. Weniger Seiten oder ein kleineres Bild versuchen.", true);
-    } finally {
-      btn.disabled = false; setTimeout(() => { $("progress").hidden = true; }, 400);
+      }, (tIn + tRub * i / passes) * T);
     }
-  };
 
-  makeSample();
+    setTimeout(done, (tIn + tRub) * T + 50);
+  }
+
+  // ---- Sterne
+  function burst(el){
+    const r = el.getBoundingClientRect(), cx = r.left + r.width/2, cy = r.top + r.height/2;
+    const count = reduce ? 8 : 30;
+    for (let i = 0; i < count; i++){
+      const s = document.createElement('div'); s.className = 'star';
+      s.style.left = cx + 'px'; s.style.top = cy + 'px';
+      const size = 0.6 + Math.random()*0.9;
+      document.body.appendChild(s);
+      const ang = Math.random() * Math.PI * 2, dist = 110 + Math.random()*230;
+      const dx = Math.cos(ang)*dist, dy = Math.sin(ang)*dist - 80, rot = (Math.random()*2-1)*540;
+      const kf = reduce
+        ? [{opacity:0, transform:`translate(${dx*.4}px,${dy*.4}px) scale(${size})`}, {opacity:1, offset:.3}, {opacity:0, transform:`translate(${dx*.4}px,${dy*.4}px) scale(${size})`}]
+        : [{transform:'translate(0,0) scale(.2) rotate(0deg)', opacity:1},
+           {transform:`translate(${dx}px,${dy}px) scale(${size}) rotate(${rot}deg)`, opacity:1, offset:.55},
+           {transform:`translate(${dx*1.15}px,${dy+220}px) scale(${size*.5}) rotate(${rot*1.6}deg)`, opacity:0}];
+      s.animate(kf, {duration: 2500 + Math.random()*1200, easing:'cubic-bezier(.12,.65,.3,1)', fill:'forwards'})
+       .onfinish = () => s.remove();
+    }
+    const b = document.createElement('div'); b.className = 'bravo'; b.textContent = '★ ' + msgEl.textContent;
+    document.body.appendChild(b);
+    b.animate(reduce
+      ? [{opacity:0},{opacity:1, offset:.2},{opacity:1, offset:.8},{opacity:0}]
+      : [{opacity:0, transform:'translate(-50%,-50%) scale(.3)'},
+         {opacity:1, transform:'translate(-50%,-50%) scale(1.12)', offset:.25},
+         {opacity:1, transform:'translate(-50%,-50%) scale(1)', offset:.75},
+         {opacity:0, transform:'translate(-50%,-70%) scale(.9)'}],
+      {duration:3000, fill:'forwards'}).onfinish = () => b.remove();
+  }
+
+  // ---- Zufallsaufgabe drehen (immer lösbar)
+  function spinAll(){
+    const L = LEVELS[level], t = makeTask(L), ch = chainOn(L);
+    const w3 = r3vals(t.a, L.ops[t.op]);
+    if (!sameVals(w3, r3.vals)) r3.setVals(w3, 0);
+    let w5 = null;
+    if (ch){ w5 = r5vals(t.a, L.ops[t.op], t.b, L.ops[t.op2]); if (!sameVals(w5, r5.vals)) r5.setVals(w5, 0); }
+    const spinBtn = $('spin'); spinBtn.disabled = true;
+    input = ''; solved = false; drawAnswer(''); setMsg('');
+    updateHelp(true);
+    const reels = ch ? [r1, r2, r3, r4, r5] : [r1, r2, r3];
+    let pending = reels.length; const done = () => {
+      if (--pending) return;
+      reels.forEach(r => { r.onSettle = changed; r.locked = false; });
+      spinBtn.disabled = false; changed();
+    };
+    reels.forEach(r => { r.onSettle = done; r.locked = true; });
+    r1.spinTo(t.a - 1, 22, 1300); r2.spinTo(t.op, 14, 1550); r3.spinTo(w3.indexOf(t.b), 34, 1800);
+    if (ch){ r4.spinTo(t.op2, 14, 2050); r5.spinTo(w5.indexOf(t.c), 46, 2300); }
+  }
+
+
+  $('pad').addEventListener('click', e => { const k = e.target.closest('.key'); if (k && !k.disabled) press(k.dataset.k); });
+  $('spin').addEventListener('click', spinAll);
+  document.addEventListener('keydown', e => {
+    if (!$('ov').hidden){ if (e.key === 'Escape') closeSettings(); return; }
+    if (e.target.classList && e.target.classList.contains('reel') && e.key.startsWith('Arrow')) return;
+    if (/^\d$/.test(e.key)) press(e.key);
+    else if (e.key === 'Backspace') press('del');
+    else if (e.key === '-') press('neg');
+    else if (e.key === 'Enter' && !(e.target.tagName === 'BUTTON')) press('ok');
+  });
+
+  // ---- Einstellungen anwenden
+  function applySettings(){
+    for (let i = 0; i < 3; i++) LEVELS[i].max = SET.max[i];
+    SQUARES = range1(SET.max[3]).map(n => n * n);
+    document.querySelectorAll('.lvl').forEach(b => b.hidden = !SET.levels[Number(b.dataset.l)]);
+    $('levels').hidden = SET.levels.filter(Boolean).length < 2;
+    $('lvlRoot').textContent = '√ ' + SET.max[3] * SET.max[3];
+    document.querySelector('.reels').classList.toggle('nodrag', !SET.drag);
+    $('hint').textContent = SET.drag
+      ? 'Walzen mit dem Finger drehen oder den Knopf drücken, dann das Ergebnis eintippen.'
+      : 'Knopf drücken, dann das Ergebnis eintippen.';
+  }
+  function saveSettings(){ try { localStorage.setItem(SET_KEY, JSON.stringify(SET)); } catch(e) {} }
+
+  async function hashPw(t){
+    try {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('ein-mal-eins:' + t));
+      return Array.from(new Uint8Array(buf), x => x.toString(16).padStart(2, '0')).join('');
+    } catch(e) { return 'plain:' + t; }
+  }
+
+  // ---- Dialog
+  let lastFocus = null;
+  function openSettings(){
+    lastFocus = document.activeElement;
+    $('ov').hidden = false; $('pwForm').hidden = false; $('setForm').hidden = true;
+    $('pw').value = ''; $('pwErr').textContent = '';
+    setTimeout(() => $('pw').focus(), 30);
+  }
+  function closeSettings(){ $('ov').hidden = true; if (lastFocus && lastFocus.focus) lastFocus.focus(); }
+  function fillForm(){
+    for (let i = 0; i < 4; i++){ $('lv' + i).checked = SET.levels[i]; $('mx' + i).value = SET.max[i]; }
+    $('setDrag').checked = SET.drag;
+    $('setChain').checked = SET.chain;
+    $('setHelp').checked = SET.help;
+    $('setStars').textContent = stars;
+    $('pwNew').value = ''; $('pwNew2').value = ''; $('setErr').textContent = '';
+    updRootTxt();
+  }
+  function updRootTxt(){ const n = clampMax($('mx3').value, 3); $('mx3txt').textContent = '√ bis ' + n * n; }
+
+  $('gear').addEventListener('click', openSettings);
+  $('setClose').addEventListener('click', closeSettings);
+  $('setCancel').addEventListener('click', closeSettings);
+  $('ov').addEventListener('click', e => { if (e.target === $('ov')) closeSettings(); });
+  $('mx3').addEventListener('input', updRootTxt);
+
+  $('pwForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const want = SET.pw || await hashPw(DEFAULT_PW);
+    if (await hashPw($('pw').value) === want){
+      $('pwForm').hidden = true; $('setForm').hidden = false; fillForm();
+      setTimeout(() => $('lv0').focus(), 30);
+    } else {
+      $('pwErr').textContent = 'Das Passwort stimmt nicht. Bitte nochmal versuchen.';
+      $('pw').select();
+    }
+  });
+
+  $('resetStars').addEventListener('click', () => {
+    stars = 0; $('score').textContent = 0; $('setStars').textContent = 0;
+  });
+
+  $('setForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const levels = [0, 1, 2, 3].map(i => $('lv' + i).checked);
+    if (!levels.some(Boolean)) return $('setErr').textContent = 'Mindestens eine Stufe muss sichtbar sein.';
+    const p1 = $('pwNew').value, p2 = $('pwNew2').value;
+    if (p1 || p2){
+      if (p1 !== p2) return $('setErr').textContent = 'Die beiden neuen Passwörter sind nicht gleich.';
+      if (p1.length < 4) return $('setErr').textContent = 'Das neue Passwort braucht mindestens 4 Zeichen.';
+      SET.pw = await hashPw(p1);
+    }
+    SET.levels = levels;
+    SET.max = [0, 1, 2, 3].map(i => clampMax($('mx' + i).value, i));
+    SET.drag = $('setDrag').checked;
+    SET.chain = $('setChain').checked;
+    SET.help = $('setHelp').checked;
+    saveSettings(); applySettings();
+    closeSettings();
+    setLevel(SET.levels[level] ? level : SET.levels.indexOf(true));
+  });
+
+  $('score').textContent = stars;
+  applySettings();
+  changed();
 })();
 </script>
-
 </body>
 </html>

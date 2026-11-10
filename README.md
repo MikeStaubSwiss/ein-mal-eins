@@ -1,47 +1,51 @@
-# ZAP-App – Zoom and Print
+# Ein mal Eins
 
-Bild scannen, vergrössern und auf mehrere A4-Seiten verteilen. Das Ergebnis ist ein PDF zum Ausdrucken und Zusammenkleben – ideal für Poster, Vorlagen oder Pläne.
+Eine Rechen-Lernapp für Kinder. Drei drehbare Walzen (Zahl · Rechenart · Zahl) stellen die Aufgabe, das Kind tippt das Ergebnis ein. Bei einer richtigen Antwort fliegen Sterne, bei einer falschen radiert ein Radiergummi die Zahl weg.
 
-Alles läuft direkt im Browser. Es wird nichts hochgeladen, das Bild bleibt auf dem Gerät.
+Die App ist eine einzige Datei: `index.html`. Daneben liegt die Benutzerdokumentation als PDF. Sie braucht keinen Server, keine Installation und kein Build.
 
 ## Funktionen
 
-- **Bild scannen** mit der Handykamera oder aus der Galerie wählen (auch Drag & Drop und Einfügen)
-- **Drehen** in 90°-Schritten
-- **Grösse festlegen** über
-  - **Seitenanzahl** (2–20 Seiten, Raster und Ausrichtung werden automatisch optimiert) oder Spalten × Zeilen von Hand
-  - **Prozent** (25–1000 %, 100 % = Bild füllt genau eine A4-Seite); die nötige Seitenzahl wird berechnet
-- **Hoch- oder Querformat**, «Ganzes Bild» oder «Seiten füllen»
-- **Druckrand** und **Klebezugabe** (Überlappung) einstellbar
-- **Klebelinien und Seitencodes** (A1, A2, B1 …) auf jeder Seite
-- **Vorschau** des ganzen Posters und jeder einzelnen PDF-Seite
-- **Anzeige** von Postergrösse in cm, Vergrösserung in % und Druckauflösung in dpi mit Warnung bei zu geringer Schärfe
-- **PDF-Export** mit bis zu 200 dpi
+- **Vier Stufen**
+  - Entdecker: + −
+  - Forscher: + − ×
+  - Profi: + − × :
+  - Professor: Wurzelziehen (bis 2500)
+- Walzen von Hand drehen oder per Knopf «Neue Aufgabe drehen»
+- Geteilt- und Wurzelaufgaben gehen immer auf (die Walzen zeigen nur passende Zahlen)
+- Optional eine **3. Zahlenwalze** mit Punkt vor Strich, z. B. 4 + 3 × 2
+- **Rechenhilfe** mit gelbem Bogen unter dem Teil, der zuerst gerechnet wird
+- Sternenzähler, der bei jedem Öffnen der App bei 0 beginnt
 
-## Benutzung
+## Einstellungen für die Lehrperson
 
-1. Bild scannen oder wählen.
-2. Seitenanzahl oder Prozent wählen.
-3. Vorschau prüfen.
-4. «PDF erstellen und speichern» antippen.
-5. PDF öffnen und mit **100 % / «Tatsächliche Grösse»** drucken – nicht «An Seite anpassen», sonst stimmen die Klebelinien nicht.
-6. Blätter nach Code (A1, A2 …) zusammenlegen, an den gestrichelten Linien überlappen und kleben.
+Über das Zahnrad oben rechts. Das Startpasswort ist **`Admin`**. Bitte nach dem ersten Öffnen ändern.
 
-## Anleitung
+Einstellbar sind:
 
-Die ausführliche Benutzerdokumentation liegt als `ZAP-App_Benutzerdokumentation.pdf` neben `index.html`. Der Knopf «Anleitung (PDF)» oben in der App öffnet sie.
+- welche Stufen sichtbar sind
+- die grösste Zahl pro Stufe
+- ob die Walzen von Hand gedreht werden dürfen
+- 3. Zahlenwalze an/aus
+- Rechenhilfe an/aus
+- Sterne zurücksetzen
+- Passwort ändern
 
-## Auf GitHub Pages veröffentlichen
+In den Einstellungen öffnet **Benutzerdokumentation öffnen** die Anleitung `Ein_mal_Eins_Benutzerdokumentation.pdf`. Die PDF-Datei muss deshalb im selben Ordner liegen wie `index.html`.
 
-1. Neues Repository anlegen und `index.html`, `ZAP-App_Benutzerdokumentation.pdf` sowie `README.md` hochladen.
-2. Unter **Settings → Pages** bei «Source» den Branch `main` und den Ordner `/ (root)` wählen.
-3. Nach kurzer Zeit ist die App unter `https://<benutzername>.github.io/<repository>/` erreichbar.
+Die Einstellungen werden im Browser des jeweiligen Geräts gespeichert (`localStorage`). Sie gelten also nur auf dem Gerät, auf dem sie gemacht wurden. Der Passwortschutz hält Kinder fern, ist aber keine echte Sicherheit.
 
-Lokal genügt es, `index.html` im Browser zu öffnen.
+## Starten
 
-## Technik
+- **Lokal:** `index.html` im Browser öffnen.
+- **GitHub Pages:**
+  1. Repository erstellen und `index.html` sowie `Ein_mal_Eins_Benutzerdokumentation.pdf` hochladen.
+  2. *Settings → Pages* öffnen.
+  3. Unter *Source* «Deploy from a branch» wählen, Branch `main`, Ordner `/ (root)`, und speichern.
+  4. Nach ein bis zwei Minuten ist die App unter `https://<benutzername>.github.io/<repository>/` erreichbar.
 
-- Eine einzige Datei: HTML, CSS und JavaScript ohne Build-Schritt
-- PDF-Erzeugung mit [jsPDF](https://github.com/parallax/jsPDF) 2.5.1 (über cdnjs)
-- Schriften: Archivo, IBM Plex Sans, IBM Plex Mono (Google Fonts)
-- Helles und dunkles Design folgt der Systemeinstellung
+Die Schriften werden von Google Fonts geladen. Ohne Internet nimmt die App Ersatzschriften und funktioniert trotzdem.
+
+## Copyright
+
+© 2026 Mike Staub. Alle Rechte vorbehalten. Siehe [LICENSE](LICENSE).
